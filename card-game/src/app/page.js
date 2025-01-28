@@ -1,82 +1,40 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import Image from "next/image"
+import { generateList } from "@/utils/utils"
+
+const cardSuits = ["A", "A", "♥", "♠", "♣", "♦", "J", "Q", "K"]
+
+function Slot({ text, size = "normal" }) {
+  const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
+  const textSize = size === "small" ? "text-4xl" : "text-6xl"
+  return (
+    <div
+      className={`flex justify-center items-center rounded-xl border-2 border-red-500 ${slotSize}`}
+    >
+      <p className={`${textSize}`}>{text}</p>
+    </div>
+  )
+}
+
+function Deck({ list, size = "normal" }) {
+  return list.map((each, index) => <Slot key={index} text={each} size={size} />)
+}
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-2 row-start-2 justify-center items-center">
+        <div className="flex flex-row gap-2 justify-center items-center">
+          <Deck list={generateList(["1"], 10)} size="normal" />
+        </div>
+        <div className="flex flex-row gap-2 justify-center items-center mt-20">
+          <Deck list={generateList(cardSuits, 6)} size="small" />
         </div>
       </main>
-      <footer className={styles.footer}>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://github.com/PagP332/CardGame/tree/main/card-game"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -87,9 +45,9 @@ export default function Home() {
             width={16}
             height={16}
           />
-          Go to nextjs.org →
+          GitHub →
         </a>
       </footer>
     </div>
-  );
+  )
 }
