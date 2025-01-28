@@ -13,32 +13,28 @@ function Slot({ text, size = "normal", color = colors.Empty }) {
   const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
   const textSize = size === "small" ? "text-4xl" : "text-6xl"
   return (
-    <div
+    <button
       className={`flex justify-center items-center rounded-xl border-2 ${color} ${slotSize}`}
     >
       <p className={`${textSize}`}>{text}</p>
-    </div>
+    </button>
   )
 }
 
-function Deck({ list, size = "normal" }) {
+function Deck({ list, size = "normal", color = colors.Empty }) {
   return list.map((each, index) => (
-    <Slot
-      key={index}
-      text={each}
-      size={size}
-      color={colors.debug_genRandomColor()}
-    />
+    <Slot key={index} text={each} size={size} color={color[index]} />
   ))
 }
 
 export default function Home() {
-  const [tableDeck, setTableDeck] = useState(
-    generateList(["o"], tableDeck_size)
-  )
+  const [tableDeck, setTableDeck] = useState(generateList([""], tableDeck_size))
   const [handDeck, setHandDeck] = useState(
     generateList(cardSuits, handDeck_size)
   )
+  const refreshHand = () => {
+    setHandDeck(generateList(cardSuits, handDeck_size))
+  }
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-2 row-start-2 justify-center items-center">
@@ -46,8 +42,18 @@ export default function Home() {
           <Deck list={tableDeck} size="normal" />
         </div>
         <div className="flex flex-row gap-2 justify-center items-center mt-20">
-          <Deck list={handDeck} size="small" />
+          <Deck
+            list={handDeck}
+            size="small"
+            color={generateList(colors.colorList, handDeck_size)}
+          />
         </div>
+        <button
+          className="flex flex-row justify-center items-center border rounded-full p-5 m-5"
+          onClick={refreshHand}
+        >
+          <p>⟳</p>
+        </button>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a

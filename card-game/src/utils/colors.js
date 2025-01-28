@@ -4,7 +4,7 @@ export const Tier2 = "border-green-500"
 export const Tier3 = "border-sky-500"
 export const Tier4 = "border-violet-500"
 export const Tier5 = "border-amber-500"
-const colorList = [Empty, Tier1, Tier2, Tier3, Tier4, Tier5]
+export const colorList = [Empty, Tier1, Tier2, Tier3, Tier4, Tier5]
 
 export function debug_genRandomColor() {
   const rand = Math.floor(Math.random() * 6)
