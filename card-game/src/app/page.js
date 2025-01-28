@@ -1,13 +1,9 @@
 "use client"
 import Image from "next/image"
 import { useState } from "react"
-import { generateList } from "@/utils/utils"
+import * as utils from "@/utils/utils"
 import * as colors from "@/utils/colors"
-
-const cardSuits = ["A", "A", "♥", "♠", "♣", "♦", "J", "Q", "K"]
-
-const tableDeck_size = 10
-const handDeck_size = 8
+import { RollChance } from "@/utils/rarity"
 
 function Slot({ text, size = "normal", color = colors.Empty }) {
   const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
@@ -29,17 +25,65 @@ function Slot({ text, size = "normal", color = colors.Empty }) {
 
 function Deck({ list, size = "normal", color = colors.Empty }) {
   return list.map((each, index) => (
-    <Slot key={index} text={each} size={size} color={color[index]} />
+    <Slot
+      key={index}
+      text={each.suit}
+      size={size}
+      color={each.rarity ? each.rarity.color : colors.Empty}
+      // onClick={isHand ? handCardClicked(index) : null}
+    />
   ))
 }
 
+function ChanceList({ list }) {
+  return (
+    <div className="flex gap-5">
+      {Object.entries(list.chances).map(([key, value]) => (
+        <p key={key}>{Math.trunc(value * 100) + "%"}</p>
+      ))}
+    </div>
+  )
+}
+
 export default function Home() {
-  const [tableDeck, setTableDeck] = useState(generateList([""], tableDeck_size))
+  const [level, setLevel] = useState(0)
+  const [rarityChance, setRarityChance] = useState(RollChance[level])
+  const [tableDeck, setTableDeck] = useState(
+    utils.generateList(utils.tableDeck_size, true)
+  )
   const [handDeck, setHandDeck] = useState(
-    generateList(cardSuits, handDeck_size)
+    utils.generateList(utils.handDeck_size, false, rarityChance.chances)
   )
   const refreshHand = () => {
-    setHandDeck(generateList(cardSuits, handDeck_size))
+    setHandDeck(
+      utils.generateList(utils.handDeck_size, false, rarityChance.chances)
+    )
+  }
+  function Debug({ isVisible }) {
+    return (
+      <div>
+        <button
+          className="flex p-3 border mt-3"
+          onClick={() => {
+            if (level < 9) {
+              setLevel(level + 1)
+            }
+            setRarityChance(RollChance[level])
+          }}
+        >
+          debug: level up
+        </button>
+        <button
+          className="flex p-3 border mt-3"
+          onClick={() => {
+            setLevel(0)
+            setRarityChance(RollChance[level])
+          }}
+        >
+          debug: reset level
+        </button>
+      </div>
+    )
   }
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)]">
@@ -51,7 +95,7 @@ export default function Home() {
           <Deck
             list={handDeck}
             size="small"
-            color={generateList(colors.colorList, handDeck_size)}
+            color={utils.generateList(colors.colorList, utils.handDeck_size)}
           />
         </div>
         <button
@@ -60,6 +104,9 @@ export default function Home() {
         >
           <p>⟳</p>
         </button>
+        <p>Level {rarityChance.level}</p>
+        <ChanceList list={rarityChance} />
+        <Debug isVisible={true} />
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
