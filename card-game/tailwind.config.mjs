@@ -14,4 +14,19 @@ export default {
     },
   },
   plugins: [],
-};
+  purge: {
+    content: [
+      "./src/**/*.html",
+      "./src/**/*.js",
+      // Add other paths as needed
+    ],
+    safelist: [
+      "border-gray-500/50",
+      "border-gray-500",
+      "border-green-500",
+      "border-sky-500",
+      "border-violet-500",
+      "border-amber-500",
+    ],
+  },
+}
