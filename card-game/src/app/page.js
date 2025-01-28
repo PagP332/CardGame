@@ -12,11 +12,17 @@ const handDeck_size = 8
 function Slot({ text, size = "normal", color = colors.Empty }) {
   const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
   const textSize = size === "small" ? "text-4xl" : "text-6xl"
+  const contentSize =
+    size === "small" ? "w-[100px] h-[130px]" : "w-[150px] h-[195px]"
   return (
     <button
-      className={`flex justify-center items-center rounded-xl border-2 ${color} ${slotSize}`}
+      className={`flex justify-center items-center rounded-xl border-2 ${color} transition-all duration-200 ease-in-out hover:scale-105 hover:mx-2`}
     >
-      <p className={`${textSize}`}>{text}</p>
+      <p
+        className={`${textSize} ${contentSize} flex items-center justify-center`}
+      >
+        {text}
+      </p>
     </button>
   )
 }
@@ -49,7 +55,7 @@ export default function Home() {
           />
         </div>
         <button
-          className="flex flex-row justify-center items-center border rounded-full p-5 m-5"
+          className="flex flex-row justify-center items-center border rounded-full m-10 size-16"
           onClick={refreshHand}
         >
           <p>⟳</p>
