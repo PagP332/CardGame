@@ -17,7 +17,7 @@ export function generateList(number, empty = false, rarityChance) {
   const result = []
   for (let i = 0; i < number; i++) {
     // const randomIndex = Math.floor(Math.random() * list.length)
-    result.push(!empty ? createCard(i, rarityChance) : emptyCard)
+    result.push(!empty ? createCard(i, rarityChance) : emptyCard(i))
   }
   return result
 }
@@ -42,6 +42,6 @@ export function createCard(index, rarityChance = defaultRarityChance) {
     rarity: rarity.RarityList[chooseRarity(rarityChance)],
     suit: cardSuits[Math.floor(Math.random() * cardSuits.length)],
   }
-  console.log(rarity.RarityList[chooseRarity(rarityChance)])
+  // console.log(rarity.RarityList[chooseRarity(rarityChance)])
   return card
 }

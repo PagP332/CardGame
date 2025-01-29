@@ -1,9 +1,9 @@
 "use client"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import * as utils from "@/utils/utils"
 import * as colors from "@/utils/colors"
-import { RollChance } from "@/utils/rarity"
+import { RollChance, Empty } from "@/utils/rarity"
 
 function ChanceList({ list }) {
   return (
@@ -26,6 +26,20 @@ export default function Home() {
   const [handDeck, setHandDeck] = useState(
     utils.generateList(utils.handDeck_size, false, rarityChance.chances)
   )
+  const [isTableFull, setIsTableFull] = useState(false)
+
+  useEffect(() => {
+    setRarityChance(RollChance[level])
+  }, [level])
+
+  useEffect(() => {
+    setHandDeck(handDeck)
+  }, [handDeck])
+
+  useEffect(() => {
+    if (getEmptySlot() === -1) setIsTableFull(true)
+    else setIsTableFull(false)
+  }, [tableDeck])
 
   const refreshHand = () => {
     setHandDeck(
@@ -33,12 +47,44 @@ export default function Home() {
     )
   }
 
+  const getEmptySlot = () => {
+    console.log("table deck ", tableDeck)
+    const r = tableDeck.findIndex((each) => each.rarity.value === 0)
+    return r
+  }
+
+  const handleHandCardPressed = (index) => {
+    handDeck.map((each, i) => {
+      if (i === index) {
+        placeCardOnTableDeck(each)
+      }
+    })
+    if (!isTableFull) {
+      setHandDeck((prevHandDeck) => {
+        const newHandDeck = [...prevHandDeck]
+        newHandDeck[index] = utils.emptyCard(index)
+        return newHandDeck
+      })
+    }
+
+    console.log(handDeck)
+  }
+
+  const placeCardOnTableDeck = (currentCard) => {
+    setTableDeck((prevTableDeck) => {
+      const newTableDeck = [...prevTableDeck]
+      const emptySlotIndex = getEmptySlot()
+      if (emptySlotIndex !== -1) newTableDeck[emptySlotIndex] = currentCard
+      return newTableDeck
+    })
+  }
+
   function Slot({
     index,
     text,
     size = "normal",
     color = colors.Empty,
-    onClick,
+    onHand,
   }) {
     const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
     const textSize = size === "small" ? "text-4xl" : "text-6xl"
@@ -47,7 +93,12 @@ export default function Home() {
     return (
       <button
         className={`flex justify-center items-center rounded-xl border-2 ${color} transition-all duration-200 ease-in-out hover:scale-105 hover:mx-2`}
-        onClick={() => console.log(index)}
+        onClick={() => {
+          console.log(
+            `Index ${index} Card pressed on ${onHand ? "Hand" : "Table"} Deck`
+          )
+          if (onHand) handleHandCardPressed(index)
+        }}
       >
         <p
           className={`${textSize} ${contentSize} flex items-center justify-center`}
@@ -58,7 +109,7 @@ export default function Home() {
     )
   }
 
-  function Deck({ list, size = "normal", color = colors.Empty }) {
+  function Deck({ list, size = "normal", color = colors.Empty, onHand }) {
     return list.map((each, index) => (
       <Slot
         key={index}
@@ -66,6 +117,7 @@ export default function Home() {
         text={each.suit}
         size={size}
         color={each.rarity ? each.rarity.color : colors.Empty}
+        onHand={onHand}
       />
     ))
   }
@@ -79,7 +131,6 @@ export default function Home() {
             if (level < 9) {
               setLevel(level + 1)
             }
-            setRarityChance(RollChance[level])
           }}
         >
           debug: level up
@@ -88,7 +139,7 @@ export default function Home() {
           className="flex p-3 border mt-3"
           onClick={() => {
             setLevel(0)
-            setRarityChance(RollChance[level])
+            setTableDeck(utils.generateList(utils.tableDeck_size, true))
           }}
         >
           debug: reset level
@@ -101,13 +152,14 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-2 row-start-2 justify-center items-center">
         <div className="flex flex-row gap-2 justify-center items-center">
-          <Deck list={tableDeck} size="normal" />
+          <Deck list={tableDeck} size="normal" onHand={false} />
         </div>
         <div className="flex flex-row gap-2 justify-center items-center mt-20">
           <Deck
             list={handDeck}
             size="small"
             color={utils.generateList(colors.colorList, utils.handDeck_size)}
+            onHand={true}
           />
         </div>
         <button
