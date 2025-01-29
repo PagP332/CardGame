@@ -23,7 +23,7 @@ export default function Home() {
   const [tableDeck, setTableDeck] = useState(utils.generateList(utils.tableDeck_size, true))
   const [handDeck, setHandDeck] = useState(utils.generateList(utils.handDeck_size, false, rarityChance.chances))
   const [isTableFull, setIsTableFull] = useState(false)
-  const tableHasProcessed = useRef(false)
+  const [prevTriplet, setPrevTriplet] = useState([])
 
   useEffect(() => {
     setRarityChance(RollChance[level])
@@ -37,7 +37,9 @@ export default function Home() {
     console.log("Table side effect")
 
     const triplets = utils.combineCards(tableDeck)
-    if (triplets) onTripletFound(triplets)
+    if (triplets) {
+      onTripletFound(triplets)
+    }
     if (getEmptySlot() === -1) setIsTableFull(true)
     else setIsTableFull(false)
   }, [tableDeck])
@@ -53,12 +55,13 @@ export default function Home() {
   }
 
   const onTripletFound = (triplets) => {
+    const cardCopy = tableDeck[triplets[0]]
+    cardCopy.combinations += 1
+    cardCopy.multiplier = utils.getMultiplier(cardCopy.combinations)
+    console.log("Before", tableDeck)
     setTableDeck((prevTableDeck) => {
       const newTableDeck = [...prevTableDeck]
-      console.log(newTableDeck[triplets[0]].combinations)
-      newTableDeck[triplets[0]].combinations += 1
-      console.log(newTableDeck[triplets[0]].combinations)
-      newTableDeck[triplets[0]].multiplier = utils.getMultiplier(newTableDeck[triplets[0]].combinations)
+      newTableDeck[triplets[0]] = cardCopy
       newTableDeck[triplets[1]] = utils.emptyCard(triplets[1])
       newTableDeck[triplets[2]] = utils.emptyCard(triplets[2])
 
