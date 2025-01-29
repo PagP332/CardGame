@@ -70,6 +70,14 @@ export default function Home() {
     console.log(handDeck)
   }
 
+  const handleTableCardPresed = (index) => {
+    setTableDeck((prevTableDeck) => {
+      const newTableDeck = [...prevTableDeck]
+      newTableDeck[index] = utils.emptyCard(index)
+      return newTableDeck
+    })
+  }
+
   const placeCardOnTableDeck = (currentCard) => {
     setTableDeck((prevTableDeck) => {
       const newTableDeck = [...prevTableDeck]
@@ -97,7 +105,7 @@ export default function Home() {
           console.log(
             `Index ${index} Card pressed on ${onHand ? "Hand" : "Table"} Deck`
           )
-          if (onHand) handleHandCardPressed(index)
+          onHand ? handleHandCardPressed(index) : handleTableCardPresed(index)
         }}
       >
         <p

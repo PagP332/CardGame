@@ -45,3 +45,7 @@ export function createCard(index, rarityChance = defaultRarityChance) {
   // console.log(rarity.RarityList[chooseRarity(rarityChance)])
   return card
 }
+
+export function combineCards(list) {
+  list.map((each, index) => {})
+}
