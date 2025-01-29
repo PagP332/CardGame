@@ -5,7 +5,7 @@ export const tableDeck_size = 10
 export const handDeck_size = 8
 
 const defaultRarityChance = rarity.RollChance
-const emptyCard = (index) => {
+export const emptyCard = (index) => {
   return {
     index: index,
     rarity: rarity.Empty,

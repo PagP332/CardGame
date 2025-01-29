@@ -5,41 +5,13 @@ import * as utils from "@/utils/utils"
 import * as colors from "@/utils/colors"
 import { RollChance } from "@/utils/rarity"
 
-function Slot({ text, size = "normal", color = colors.Empty }) {
-  const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
-  const textSize = size === "small" ? "text-4xl" : "text-6xl"
-  const contentSize =
-    size === "small" ? "w-[100px] h-[130px]" : "w-[150px] h-[195px]"
-  return (
-    <button
-      className={`flex justify-center items-center rounded-xl border-2 ${color} transition-all duration-200 ease-in-out hover:scale-105 hover:mx-2`}
-    >
-      <p
-        className={`${textSize} ${contentSize} flex items-center justify-center`}
-      >
-        {text}
-      </p>
-    </button>
-  )
-}
-
-function Deck({ list, size = "normal", color = colors.Empty }) {
-  return list.map((each, index) => (
-    <Slot
-      key={index}
-      text={each.suit}
-      size={size}
-      color={each.rarity ? each.rarity.color : colors.Empty}
-      // onClick={isHand ? handCardClicked(index) : null}
-    />
-  ))
-}
-
 function ChanceList({ list }) {
   return (
     <div className="flex gap-5">
       {Object.entries(list.chances).map(([key, value]) => (
-        <p key={key}>{Math.trunc(value * 100) + "%"}</p>
+        <p key={key} className={`${colors.textColor[key]}`}>
+          {Math.trunc(value * 100) + "%"}
+        </p>
       ))}
     </div>
   )
@@ -54,11 +26,50 @@ export default function Home() {
   const [handDeck, setHandDeck] = useState(
     utils.generateList(utils.handDeck_size, false, rarityChance.chances)
   )
+
   const refreshHand = () => {
     setHandDeck(
       utils.generateList(utils.handDeck_size, false, rarityChance.chances)
     )
   }
+
+  function Slot({
+    index,
+    text,
+    size = "normal",
+    color = colors.Empty,
+    onClick,
+  }) {
+    const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
+    const textSize = size === "small" ? "text-4xl" : "text-6xl"
+    const contentSize =
+      size === "small" ? "w-[100px] h-[130px]" : "w-[150px] h-[195px]"
+    return (
+      <button
+        className={`flex justify-center items-center rounded-xl border-2 ${color} transition-all duration-200 ease-in-out hover:scale-105 hover:mx-2`}
+        onClick={() => console.log(index)}
+      >
+        <p
+          className={`${textSize} ${contentSize} flex items-center justify-center`}
+        >
+          {text}
+        </p>
+      </button>
+    )
+  }
+
+  function Deck({ list, size = "normal", color = colors.Empty }) {
+    return list.map((each, index) => (
+      <Slot
+        key={index}
+        index={index}
+        text={each.suit}
+        size={size}
+        color={each.rarity ? each.rarity.color : colors.Empty}
+      />
+    ))
+  }
+
   function Debug({ isVisible }) {
     return (
       <div>
@@ -85,6 +96,7 @@ export default function Home() {
       </div>
     )
   }
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-2 row-start-2 justify-center items-center">
