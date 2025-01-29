@@ -1,6 +1,6 @@
 "use client"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import * as utils from "@/utils/utils"
 import * as colors from "@/utils/colors"
 import { RollChance, Empty } from "@/utils/rarity"
@@ -20,13 +20,10 @@ function ChanceList({ list }) {
 export default function Home() {
   const [level, setLevel] = useState(0)
   const [rarityChance, setRarityChance] = useState(RollChance[level])
-  const [tableDeck, setTableDeck] = useState(
-    utils.generateList(utils.tableDeck_size, true)
-  )
-  const [handDeck, setHandDeck] = useState(
-    utils.generateList(utils.handDeck_size, false, rarityChance.chances)
-  )
+  const [tableDeck, setTableDeck] = useState(utils.generateList(utils.tableDeck_size, true))
+  const [handDeck, setHandDeck] = useState(utils.generateList(utils.handDeck_size, false, rarityChance.chances))
   const [isTableFull, setIsTableFull] = useState(false)
+  const tableHasProcessed = useRef(false)
 
   useEffect(() => {
     setRarityChance(RollChance[level])
@@ -37,20 +34,36 @@ export default function Home() {
   }, [handDeck])
 
   useEffect(() => {
+    console.log("Table side effect")
+
+    const triplets = utils.combineCards(tableDeck)
+    if (triplets) onTripletFound(triplets)
     if (getEmptySlot() === -1) setIsTableFull(true)
     else setIsTableFull(false)
   }, [tableDeck])
 
   const refreshHand = () => {
-    setHandDeck(
-      utils.generateList(utils.handDeck_size, false, rarityChance.chances)
-    )
+    setHandDeck(utils.generateList(utils.handDeck_size, false, rarityChance.chances))
   }
 
   const getEmptySlot = () => {
-    console.log("table deck ", tableDeck)
+    // console.log("table deck ", tableDeck)
     const r = tableDeck.findIndex((each) => each.rarity.value === 0)
     return r
+  }
+
+  const onTripletFound = (triplets) => {
+    setTableDeck((prevTableDeck) => {
+      const newTableDeck = [...prevTableDeck]
+      console.log(newTableDeck[triplets[0]].combinations)
+      newTableDeck[triplets[0]].combinations += 1
+      console.log(newTableDeck[triplets[0]].combinations)
+      newTableDeck[triplets[0]].multiplier = utils.getMultiplier(newTableDeck[triplets[0]].combinations)
+      newTableDeck[triplets[1]] = utils.emptyCard(triplets[1])
+      newTableDeck[triplets[2]] = utils.emptyCard(triplets[2])
+
+      return newTableDeck
+    })
   }
 
   const handleHandCardPressed = (index) => {
@@ -66,8 +79,7 @@ export default function Home() {
         return newHandDeck
       })
     }
-
-    console.log(handDeck)
+    // console.log(handDeck)
   }
 
   const handleTableCardPresed = (index) => {
@@ -87,32 +99,22 @@ export default function Home() {
     })
   }
 
-  function Slot({
-    index,
-    text,
-    size = "normal",
-    color = colors.Empty,
-    onHand,
-  }) {
+  function Slot({ index, text, size = "normal", color = colors.Empty, onHand, multiplier }) {
     const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
     const textSize = size === "small" ? "text-4xl" : "text-6xl"
-    const contentSize =
-      size === "small" ? "w-[100px] h-[130px]" : "w-[150px] h-[195px]"
+    const contentSize = size === "small" ? "w-[100px] h-[130px]" : "w-[150px] h-[195px]"
     return (
       <button
-        className={`flex justify-center items-center rounded-xl border-2 ${color} transition-all duration-200 ease-in-out hover:scale-105 hover:mx-2`}
+        className={`relative flex justify-center items-center rounded-xl border-2 ${color} transition-all duration-200 ease-in-out hover:scale-105 hover:mx-2`}
         onClick={() => {
-          console.log(
-            `Index ${index} Card pressed on ${onHand ? "Hand" : "Table"} Deck`
-          )
+          console.log(`Index ${index} Card pressed on ${onHand ? "Hand" : "Table"} Deck`)
           onHand ? handleHandCardPressed(index) : handleTableCardPresed(index)
         }}
       >
-        <p
-          className={`${textSize} ${contentSize} flex items-center justify-center`}
-        >
-          {text}
-        </p>
+        {multiplier && multiplier !== 1 && (
+          <span className="absolute top-2 left-2 text-sm font-bold text-white rounded px-2 py-1">{multiplier}x</span>
+        )}
+        <p className={`${textSize} ${contentSize} flex items-center justify-center`}>{text}</p>
       </button>
     )
   }
@@ -122,6 +124,7 @@ export default function Home() {
       <Slot
         key={index}
         index={index}
+        multiplier={each.multiplier}
         text={each.suit}
         size={size}
         color={each.rarity ? each.rarity.color : colors.Empty}
@@ -163,17 +166,9 @@ export default function Home() {
           <Deck list={tableDeck} size="normal" onHand={false} />
         </div>
         <div className="flex flex-row gap-2 justify-center items-center mt-20">
-          <Deck
-            list={handDeck}
-            size="small"
-            color={utils.generateList(colors.colorList, utils.handDeck_size)}
-            onHand={true}
-          />
+          <Deck list={handDeck} size="small" color={utils.generateList(colors.colorList, utils.handDeck_size)} onHand={true} />
         </div>
-        <button
-          className="flex flex-row justify-center items-center border rounded-full m-10 size-16"
-          onClick={refreshHand}
-        >
+        <button className="flex flex-row justify-center items-center border rounded-full m-10 size-16" onClick={refreshHand}>
           <p>⟳</p>
         </button>
         <p>Level {rarityChance.level}</p>
@@ -187,13 +182,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
+          <Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
           Created by Pol →
         </a>
       </footer>

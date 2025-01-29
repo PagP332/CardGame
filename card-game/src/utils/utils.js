@@ -10,6 +10,8 @@ export const emptyCard = (index) => {
     index: index,
     rarity: rarity.Empty,
     suit: " ",
+    combinations: 0,
+    multiplier: null,
   }
 }
 
@@ -41,11 +43,46 @@ export function createCard(index, rarityChance = defaultRarityChance) {
     index: index,
     rarity: rarity.RarityList[chooseRarity(rarityChance)],
     suit: cardSuits[Math.floor(Math.random() * cardSuits.length)],
+    combinations: 0,
+    multiplier: 1,
   }
   // console.log(rarity.RarityList[chooseRarity(rarityChance)])
   return card
 }
 
+function findTriplets(list) {
+  const map = new Map()
+
+  for (var i = 0; i < list.length; i++) {
+    const card = list[i]
+    if (card.rarity.value !== 0) {
+      const key = `${card.rarity.value}-${card.suit}-${card.multiplier}`
+
+      if (!map.has(key)) {
+        map.set(key, [])
+      }
+
+      map.get(key).push(i)
+
+      if (map.get(key).length === 3) {
+        return map.get(key).sort((a, b) => a - b)
+      }
+    }
+  }
+
+  return null
+}
+
 export function combineCards(list) {
-  list.map((each, index) => {})
+  const triplets = findTriplets(list)
+  if (triplets) {
+    console.log("Triplets found on index ", triplets)
+  }
+  return triplets
+}
+
+export function getMultiplier(combinations) {
+  const multi = [1, 1.1, 1.3, 1.5, 2, 3, 5, 10]
+  if (combinations < multi.length) return multi[combinations]
+  else return multi[multi.length]
 }
