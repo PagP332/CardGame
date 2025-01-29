@@ -103,6 +103,8 @@ export default function Home() {
   }
 
   function Slot({ index, text, size = "normal", color = colors.Empty, onHand, multiplier }) {
+    const colorIndex = colors.colorList.findIndex((each) => each === color)
+    const textColor = colors.textColor[colorIndex]
     const slotSize = size === "small" ? "px-14 py-16" : "px-16 py-20"
     const textSize = size === "small" ? "text-4xl" : "text-6xl"
     const contentSize = size === "small" ? "w-[100px] h-[130px]" : "w-[150px] h-[195px]"
@@ -114,10 +116,8 @@ export default function Home() {
           onHand ? handleHandCardPressed(index) : handleTableCardPresed(index)
         }}
       >
-        {multiplier && multiplier !== 1 && (
-          <span className="absolute top-2 left-2 text-sm font-bold text-white rounded px-2 py-1">{multiplier}x</span>
-        )}
-        <p className={`${textSize} ${contentSize} flex items-center justify-center`}>{text}</p>
+        {multiplier && multiplier !== 1 && <span className={`absolute top-2 left-2 text-sm font-bold rounded px-2 py-1`}>{multiplier}x</span>}
+        <p className={`${textSize} ${contentSize} text-inherit flex items-center justify-center`}>{text}</p>
       </button>
     )
   }
@@ -138,9 +138,9 @@ export default function Home() {
 
   function Debug({ isVisible }) {
     return (
-      <div>
+      <div className="flex flex-row gap-3 mt-5">
         <button
-          className="flex p-3 border mt-3"
+          className="flex p-3 border"
           onClick={() => {
             if (level < 9) {
               setLevel(level + 1)
@@ -150,7 +150,7 @@ export default function Home() {
           debug: level up
         </button>
         <button
-          className="flex p-3 border mt-3"
+          className="flex p-3 border"
           onClick={() => {
             setLevel(0)
             setTableDeck(utils.generateList(utils.tableDeck_size, true))
@@ -169,12 +169,12 @@ export default function Home() {
           <Deck list={tableDeck} size="normal" onHand={false} />
         </div>
         <div className="flex flex-row gap-2 justify-center items-center mt-20">
+          <button className="flex flex-row justify-center items-center border rounded-full mx-5 size-16" onClick={refreshHand}>
+            <p className="text-3xl">⟳</p>
+          </button>
           <Deck list={handDeck} size="small" color={utils.generateList(colors.colorList, utils.handDeck_size)} onHand={true} />
         </div>
-        <button className="flex flex-row justify-center items-center border rounded-full m-10 size-16" onClick={refreshHand}>
-          <p>⟳</p>
-        </button>
-        <p>Level {rarityChance.level}</p>
+        <p className="flex mt-12">Level {rarityChance.level}</p>
         <ChanceList list={rarityChance} />
         <Debug isVisible={true} />
       </main>
